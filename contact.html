@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX — Contact & Visit Info</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.contact-section { padding: 0 80px 120px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+.contact-left {}
+.contact-right {}
+
+/* INFO BLOCKS */
+.info-block { border: 1px solid var(--border); padding: 32px; margin-bottom: 20px; transition: border-color .3s; }
+.info-block:hover { border-color: rgba(255,77,0,.3); }
+.info-block-icon { width: 40px; height: 40px; margin-bottom: 14px; }
+.info-block-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+.info-block-text { font-size: 14px; color: var(--text-muted); line-height: 1.7; font-weight: 300; }
+.info-block-text strong { color: var(--white); font-weight: 500; }
+
+/* HOURS TABLE */
+.hours-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.hours-table tr { border-bottom: 1px solid var(--border); }
+.hours-table td { padding: 10px 0; font-size: 14px; color: var(--text-muted); }
+.hours-table td:last-child { text-align: right; color: var(--white); }
+.hours-table tr.today-row td { color: var(--orange); }
+
+/* CONTACT FORM */
+.contact-form-wrap { background: var(--mid); border: 1px solid var(--border); padding: 44px; }
+.form-section-title { font-family: 'Bebas Neue', cursive; font-size: 36px; letter-spacing: 2px; margin-bottom: 6px; }
+.form-section-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; font-weight: 300; }
+.cf-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.cf-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+.cf-input, .cf-select, .cf-textarea { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--white); padding: 13px 16px; font-family: 'Barlow', sans-serif; font-size: 14px; outline: none; transition: border-color .2s; width: 100%; }
+.cf-input:focus, .cf-select:focus, .cf-textarea:focus { border-color: var(--orange); }
+.cf-select option { background: var(--mid); }
+.cf-textarea { min-height: 110px; resize: vertical; }
+.cf-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* MAP PLACEHOLDER */
+.map-block { background: linear-gradient(135deg, var(--mid), #101008); border: 1px solid var(--border); height: 280px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; margin-bottom: 20px; }
+.map-block::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(255,77,0,0.08) 0%, transparent 70%); }
+.map-grid { position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px); }
+.map-pin { position: relative; z-index: 2; text-align: center; }
+.map-pin-dot { width: 16px; height: 16px; background: var(--orange); border-radius: 50%; margin: 0 auto 8px; box-shadow: 0 0 0 8px rgba(255,77,0,0.15); animation: ping 2s ease-in-out infinite; }
+@keyframes ping { 0%, 100% { box-shadow: 0 0 0 8px rgba(255,77,0,0.15); } 50% { box-shadow: 0 0 0 20px rgba(255,77,0,0.03); } }
+.map-pin p { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; color: var(--white); }
+.map-pin span { font-size: 12px; color: var(--text-muted); }
+.map-link { display: block; text-align: center; margin-top: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); text-decoration: none; transition: color .2s; }
+.map-link:hover { color: var(--yellow); }
+
+/* TEAM SECTION */
+.team-section { padding: 80px 80px 0; }
+.team-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-top: 48px; }
+.team-card { border: 1px solid var(--border); padding: 28px 24px; text-align: center; transition: border-color .3s, transform .3s; cursor: none; }
+.team-card:hover { border-color: rgba(255,77,0,.3); transform: translateY(-3px); }
+.team-avatar { width: 64px; height: 64px; background: rgba(255,77,0,.1); border: 1px solid rgba(255,77,0,.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', cursive; font-size: 22px; color: var(--orange); margin: 0 auto 14px; }
+.team-name { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.team-role { font-size: 12px; color: var(--text-muted); font-weight: 300; margin-bottom: 14px; }
+.team-email { font-size: 12px; color: rgba(255,77,0,.7); }
+
+@media (max-width: 900px) {
+  .contact-section { grid-template-columns: 1fr; padding: 0 24px 80px; }
+  .team-section { padding: 60px 24px 0; }
+  .team-grid { grid-template-columns: 1fr 1fr; }
+  .cf-2col { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">AP<span>EX</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="rides.html">Rides</a></li>
+    <li><a href="tickets.html">Tickets</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="tickets.html" class="nav-btn">Book Now</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<section class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-lines"></div>
+  <div class="page-hero-content">
+    <div class="breadcrumb"><a href="index.html">Home</a> › <span>Contact</span></div>
+    <h1>CONTACT &<br><span>VISIT INFO</span></h1>
+    <p>Plan your visit, reach our team, or organise a group outing. We're here to make your experience legendary.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="tel:+914012345678" class="btn btn-primary">Call Us Now</a>
+      <a href="tickets.html" class="btn btn-outline">Book Tickets</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT GRID -->
+<section class="contact-section">
+  <!-- LEFT: INFO -->
+  <div class="contact-left reveal">
+    <!-- Map -->
+    <div class="map-block">
+      <div class="map-grid"></div>
+      <div class="map-pin">
+        <div class="map-pin-dot"></div>
+        <p>APEX Adventure Park</p>
+        <span>Shamshabad, Hyderabad</span>
+      </div>
+    </div>
+    <a href="https://maps.google.com" target="_blank" class="map-link">Open in Google Maps →</a>
+
+    <div style="margin-top:24px"></div>
+
+    <!-- Address -->
+    <div class="info-block">
+      <svg class="info-block-icon" viewBox="0 0 40 40" fill="none"><path d="M20 4C13.373 4 8 9.373 8 16c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12z" stroke="#ff4d00" stroke-width="1.5"/><circle cx="20" cy="16" r="4" stroke="#ff4d00" stroke-width="1.5"/></svg>
+      <div class="info-block-title">Location</div>
+      <div class="info-block-text"><strong>APEX Adventure Park</strong><br>Survey No. 245, Near Rajiv Gandhi International Airport<br>Shamshabad, Hyderabad – 501218<br>Telangana, India</div>
+    </div>
+
+    <!-- Hours -->
+    <div class="info-block">
+      <svg class="info-block-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="#ff4d00" stroke-width="1.5"/><path d="M20 12v8l5 3" stroke="#ff4d00" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div class="info-block-title">Opening Hours</div>
+      <table class="hours-table">
+        <tr><td>Monday – Friday</td><td>10:00 AM – 8:00 PM</td></tr>
+        <tr><td>Saturday</td><td>9:00 AM – 10:00 PM</td></tr>
+        <tr class="today-row"><td>Sunday ← Today</td><td>9:00 AM – 10:00 PM</td></tr>
+        <tr><td>Public Holidays</td><td>9:00 AM – 11:00 PM</td></tr>
+      </table>
+    </div>
+
+    <!-- Phone / Email -->
+    <div class="info-block">
+      <svg class="info-block-icon" viewBox="0 0 40 40" fill="none"><path d="M10 8h6l2 6-3.5 2A18 18 0 0024 26l2-3.5 6 2v6a2 2 0 01-2 2C12 32 8 14 8 10a2 2 0 012-2z" stroke="#ff4d00" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <div class="info-block-title">Get in Touch</div>
+      <div class="info-block-text">
+        <strong>Phone:</strong> <a href="tel:+914012345678" style="color:var(--orange);text-decoration:none">+91 40 1234 5678</a><br>
+        <strong>WhatsApp:</strong> <a href="https://wa.me/919876543210" style="color:var(--orange);text-decoration:none">+91 98765 43210</a><br>
+        <strong>Email:</strong> <a href="mailto:hello@apexpark.in" style="color:var(--orange);text-decoration:none">hello@apexpark.in</a><br>
+        <strong>Group Bookings:</strong> <a href="mailto:groups@apexpark.in" style="color:var(--orange);text-decoration:none">groups@apexpark.in</a>
+      </div>
+    </div>
+
+    <!-- Transport -->
+    <div class="info-block">
+      <svg class="info-block-icon" viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="24" height="16" rx="3" stroke="#ff4d00" stroke-width="1.5"/><path d="M8 20h24M14 30v3M26 30v3" stroke="#ff4d00" stroke-width="1.5" stroke-linecap="round"/><path d="M12 14v-2a2 2 0 012-2h12a2 2 0 012 2v2" stroke="#ff4d00" stroke-width="1.5"/></svg>
+      <div class="info-block-title">How to Get Here</div>
+      <div class="info-block-text">
+        <strong>By Car:</strong> Take NH65 toward Shamshabad. We are 5 mins from RGIA Airport. Free parking for 5,000 cars.<br><br>
+        <strong>By Metro:</strong> Nearest metro is Mindspace (Red Line). Park shuttle every 30 mins from 9AM.<br><br>
+        <strong>By Bus:</strong> TSRTC routes 291K, 218M stop directly at the park gate.
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: CONTACT FORM -->
+  <div class="contact-right reveal">
+    <div class="contact-form-wrap">
+      <div class="form-section-title">SEND A MESSAGE</div>
+      <div class="form-section-sub">Questions, group bookings, partnerships, feedback — we respond within 4 hours.</div>
+
+      <div class="cf-2col">
+        <div class="cf-group"><div class="cf-label">First Name</div><input type="text" class="cf-input" id="cf-fname" placeholder="Rahul"></div>
+        <div class="cf-group"><div class="cf-label">Last Name</div><input type="text" class="cf-input" id="cf-lname" placeholder="Sharma"></div>
+      </div>
+      <div class="cf-group"><div class="cf-label">Email Address</div><input type="email" class="cf-input" id="cf-email" placeholder="rahul@email.com"></div>
+      <div class="cf-group"><div class="cf-label">Phone Number</div><input type="tel" class="cf-input" placeholder="+91 98765 43210"></div>
+      <div class="cf-group"><div class="cf-label">Subject</div>
+        <select class="cf-select" id="cf-subject">
+          <option>General Enquiry</option>
+          <option>Group Booking (15+ people)</option>
+          <option>Corporate Event</option>
+          <option>Birthday Package</option>
+          <option>Media & Press</option>
+          <option>Careers</option>
+          <option>Feedback / Complaint</option>
+        </select>
+      </div>
+      <div class="cf-group"><div class="cf-label">Message</div><textarea class="cf-textarea" id="cf-message" placeholder="Tell us how we can help you..."></textarea></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn btn-primary" style="flex:1;min-width:160px;justify-content:center" onclick="submitContact()">Send Message</button>
+        <button class="btn btn-outline" style="justify-content:center" onclick="document.querySelectorAll('.cf-input,.cf-textarea').forEach(i=>i.value='');showToast('Form cleared.')">Clear</button>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <a href="tickets.html" class="btn btn-outline" style="justify-content:center;padding:16px">Book Tickets</a>
+      <a href="rides.html" class="btn btn-outline" style="justify-content:center;padding:16px">Explore Rides</a>
+      <button class="btn btn-outline" style="justify-content:center;padding:16px" onclick="showToast('App download link sent to your email!')">Download App</button>
+      <button class="btn btn-outline" style="justify-content:center;padding:16px" onclick="openModal('modal-group')">Group Enquiry</button>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team-section">
+  <div class="section-tag reveal">Our Team</div>
+  <h2 class="section-title reveal">MEET THE<br><span class="ghost">PEOPLE</span></h2>
+  <div class="team-grid reveal">
+    <div class="team-card"><div class="team-avatar">RK</div><div class="team-name">Rajesh Kumar</div><div class="team-role">CEO & Park Director</div><div class="team-email">r.kumar@apexpark.in</div></div>
+    <div class="team-card"><div class="team-avatar">PS</div><div class="team-name">Priya Sharma</div><div class="team-role">Head of Safety</div><div class="team-email">p.sharma@apexpark.in</div></div>
+    <div class="team-card"><div class="team-avatar">AR</div><div class="team-name">Arjun Reddy</div><div class="team-role">Events Manager</div><div class="team-email">a.reddy@apexpark.in</div></div>
+    <div class="team-card"><div class="team-avatar">MN</div><div class="team-name">Meera Nair</div><div class="team-role">Guest Experience</div><div class="team-email">m.nair@apexpark.in</div></div>
+  </div>
+</section>
+
+<div style="padding-bottom:100px"></div>
+
+<footer>
+  <div class="footer-grid">
+    <div><div class="footer-logo">AP<span>EX</span></div><p class="footer-tagline">India's most thrilling adventure park. 32 rides, 4 zones, 365 days of adrenaline in Hyderabad.</p></div>
+    <div><div class="footer-col-title">Explore</div><ul class="footer-links"><li><a href="rides.html">All Rides</a></li><li><a href="tickets.html">Tickets</a></li><li><a href="events.html">Events</a></li></ul></div>
+    <div><div class="footer-col-title">Visit</div><ul class="footer-links"><li><a href="contact.html">Getting Here</a></li><li><a href="contact.html">Opening Hours</a></li></ul></div>
+    <div><div class="footer-col-title">Company</div><ul class="footer-links"><li><a href="contact.html">About Apex</a></li><li><a href="contact.html">Group Bookings</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><div class="footer-copy">© 2025 Apex Adventure Park. All rights reserved.</div><div class="footer-socials"><a href="#" class="social-btn">IG</a><a href="#" class="social-btn">FB</a><a href="#" class="social-btn">YT</a><a href="#" class="social-btn">TW</a></div></div>
+</footer>
+
+<!-- GROUP ENQUIRY MODAL -->
+<div class="modal-overlay" id="modal-group">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-group')">✕</button>
+    <h3>GROUP ENQUIRY</h3>
+    <p>Tell us about your group and we'll send you a custom package within 24 hours.</p>
+    <div class="form-group"><label>Organisation / Company</label><input type="text" placeholder="ABC School / Infosys etc."></div>
+    <div class="form-row">
+      <div class="form-group"><label>Contact Name</label><input type="text" placeholder="Your name"></div>
+      <div class="form-group"><label>Group Size</label><input type="number" min="15" placeholder="Min 15"></div>
+    </div>
+    <div class="form-group"><label>Preferred Date</label><input type="date"></div>
+    <div class="form-group"><label>Email</label><input type="email" placeholder="your@email.com"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="closeModal('modal-group');showToast('Group enquiry sent! We will contact you within 24hrs.')">Submit Enquiry</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+function submitContact() {
+  const name = document.getElementById('cf-fname').value;
+  const email = document.getElementById('cf-email').value;
+  const msg = document.getElementById('cf-message').value;
+  if (!name || !email || !msg) { showToast('Please fill all required fields!'); return; }
+  showToast('Message sent! We will reply to ' + email + ' within 4 hours.');
+  document.querySelectorAll('.cf-input, .cf-textarea').forEach(i => i.value = '');
+}
+</script>
+</body>
+</html>

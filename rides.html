@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX — Rides & Attractions</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* FILTER BAR */
+.filter-bar { padding: 0 80px 60px; display: flex; gap: 10px; flex-wrap: wrap; }
+.filter-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 22px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: none; transition: all .2s; clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); }
+.filter-btn:hover, .filter-btn.active { background: var(--orange); border-color: var(--orange); color: var(--dark); }
+
+/* RIDES GRID */
+.rides-grid { padding: 0 80px 120px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.ride-full-card { background: var(--card); border: 1px solid var(--border); overflow: hidden; transition: border-color .3s, transform .3s; cursor: none; }
+.ride-full-card:hover { border-color: rgba(255,77,0,0.4); transform: translateY(-4px); }
+.ride-img { height: 200px; position: relative; overflow: hidden; }
+.ride-img-bg { position: absolute; inset: 0; transition: transform .5s; }
+.ride-full-card:hover .ride-img-bg { transform: scale(1.05); }
+.bg-1 { background: linear-gradient(135deg, #2a0800, #5a1500, #2a0a00); }
+.bg-2 { background: linear-gradient(135deg, #001a10, #003a22, #001510); }
+.bg-3 { background: linear-gradient(135deg, #0a001a, #200040, #0a0018); }
+.bg-4 { background: linear-gradient(135deg, #001828, #003560, #001025); }
+.bg-5 { background: linear-gradient(135deg, #1a1000, #3a2800, #201400); }
+.bg-6 { background: linear-gradient(135deg, #1a0010, #380025, #140010); }
+.bg-7 { background: linear-gradient(135deg, #001a1a, #003838, #001515); }
+.bg-8 { background: linear-gradient(135deg, #181800, #383800, #181400); }
+.bg-9 { background: linear-gradient(135deg, #0a0a1a, #1a1a40, #0a0a20); }
+.ride-img-badge { position: absolute; top: 14px; left: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; clip-path: polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%); }
+.t-thrill { background: var(--orange); color: var(--dark); }
+.t-family { background: var(--yellow); color: var(--dark); }
+.t-extreme { background: #cc0044; color: white; }
+.t-vr { background: #7733ff; color: white; }
+.t-water { background: #0088cc; color: white; }
+.ride-height-badge { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; padding: 4px 10px; }
+.ride-body { padding: 24px; }
+.ride-name-full { font-family: 'Bebas Neue', cursive; font-size: 32px; letter-spacing: 2px; margin-bottom: 6px; }
+.ride-tagline { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; font-weight: 300; line-height: 1.5; }
+.ride-stats { display: flex; gap: 20px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.ride-stat { text-align: center; }
+.ride-stat-val { font-family: 'Bebas Neue', cursive; font-size: 22px; color: var(--orange); }
+.ride-stat-key { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+.ride-actions { display: flex; gap: 10px; }
+
+/* ZONE SECTIONS */
+.zone-header { padding: 0 80px 24px; display: flex; align-items: center; gap: 16px; }
+.zone-line { flex: 1; height: 1px; background: var(--border); }
+.zone-label { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 3px; color: var(--orange); white-space: nowrap; }
+
+/* THRILL METER */
+.thrill-meter { display: flex; gap: 4px; align-items: center; margin-bottom: 12px; }
+.thrill-bar { width: 18px; height: 6px; background: var(--border); border-radius: 2px; }
+.thrill-bar.filled { background: var(--orange); }
+.thrill-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-left: 6px; }
+
+@media (max-width: 900px) {
+  .filter-bar { padding: 0 24px 40px; }
+  .rides-grid { grid-template-columns: 1fr; padding: 0 24px 80px; }
+  .zone-header { padding: 0 24px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">AP<span>EX</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="rides.html">Rides</a></li>
+    <li><a href="tickets.html">Tickets</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="tickets.html" class="nav-btn">Book Now</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-lines"></div>
+  <div class="page-hero-content">
+    <div class="breadcrumb"><a href="index.html">Home</a> › <span>Rides</span></div>
+    <h1>RIDES &<br><span>ATTRACTIONS</span></h1>
+    <p>32 legendary experiences across 4 themed zones. From gentle family rides to heart-stopping extreme drops — find your perfect thrill.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="tickets.html" class="btn btn-primary">Book Tickets <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <button class="btn btn-outline" onclick="document.getElementById('thrill').scrollIntoView({behavior:'smooth'})">Thrill Zone</button>
+      <button class="btn btn-outline" onclick="document.getElementById('family').scrollIntoView({behavior:'smooth'})">Family Zone</button>
+    </div>
+  </div>
+</section>
+
+<!-- FILTER -->
+<div class="filter-bar reveal">
+  <button class="filter-btn active" onclick="filterRides('all',this)">All Rides</button>
+  <button class="filter-btn" onclick="filterRides('thrill',this)">Thrill</button>
+  <button class="filter-btn" onclick="filterRides('family',this)">Family</button>
+  <button class="filter-btn" onclick="filterRides('water',this)">Water</button>
+  <button class="filter-btn" onclick="filterRides('extreme',this)">Extreme</button>
+  <button class="filter-btn" onclick="filterRides('vr',this)">VR</button>
+</div>
+
+<!-- THRILL ZONE -->
+<div class="zone-header" id="thrill"><div class="zone-line"></div><div class="zone-label">⚡ THRILL ZONE</div><div class="zone-line"></div></div>
+<div class="rides-grid" id="rides-container">
+
+  <div class="ride-full-card reveal" data-zone="thrill">
+    <div class="ride-img"><div class="ride-img-bg bg-1"></div><span class="ride-img-badge t-thrill">Max Thrill</span><span class="ride-height-badge">Min 140cm</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><span class="thrill-label">Extreme</span></div>
+      <div class="ride-name-full">INFERNO DROP</div>
+      <div class="ride-tagline">100m vertical free-fall tower. 0 to 120km/h in just 1.8 seconds. The tallest drop ride in Asia.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">100m</div><div class="ride-stat-key">Height</div></div><div class="ride-stat"><div class="ride-stat-val">120</div><div class="ride-stat-key">km/h</div></div><div class="ride-stat"><div class="ride-stat-val">1.8s</div><div class="ride-stat-key">Drop Time</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Inferno Drop added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+
+  <div class="ride-full-card reveal" data-zone="thrill">
+    <div class="ride-img"><div class="ride-img-bg bg-5"></div><span class="ride-img-badge t-thrill">High Thrill</span><span class="ride-height-badge">Min 130cm</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar"></div><span class="thrill-label">High</span></div>
+      <div class="ride-name-full">SKY GLIDER</div>
+      <div class="ride-tagline">Zipline over the entire 40-acre park canopy at 80km/h. Panoramic views, pure wind-in-your-face freedom.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">800m</div><div class="ride-stat-key">Length</div></div><div class="ride-stat"><div class="ride-stat-val">80</div><div class="ride-stat-key">km/h</div></div><div class="ride-stat"><div class="ride-stat-val">60m</div><div class="ride-stat-key">Height</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Sky Glider added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+
+  <div class="ride-full-card reveal" data-zone="extreme">
+    <div class="ride-img"><div class="ride-img-bg bg-6"></div><span class="ride-img-badge t-extreme">Extreme</span><span class="ride-height-badge">Min 150cm</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><span class="thrill-label">Extreme</span></div>
+      <div class="ride-name-full">BLOOD MOON</div>
+      <div class="ride-tagline">Inverted mega-coaster with 5 full loops and a 95° beyond-vertical drop. Not for the faint-hearted.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">5</div><div class="ride-stat-key">Loops</div></div><div class="ride-stat"><div class="ride-stat-val">95°</div><div class="ride-stat-key">Drop Angle</div></div><div class="ride-stat"><div class="ride-stat-val">140</div><div class="ride-stat-key">km/h</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Blood Moon added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAMILY ZONE -->
+<div class="zone-header" id="family"><div class="zone-line"></div><div class="zone-label">🎠 FAMILY ZONE</div><div class="zone-line"></div></div>
+<div class="rides-grid">
+  <div class="ride-full-card reveal" data-zone="family">
+    <div class="ride-img"><div class="ride-img-bg bg-2"></div><span class="ride-img-badge t-family">Family</span><span class="ride-height-badge">All Ages</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><span class="thrill-label">Moderate</span></div>
+      <div class="ride-name-full">WILD RIVER</div>
+      <div class="ride-tagline">800m of white-water rapids through jungle canyons. Guaranteed soaking — guaranteed fun for everyone.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">800m</div><div class="ride-stat-key">Length</div></div><div class="ride-stat"><div class="ride-stat-val">6</div><div class="ride-stat-key">People/Boat</div></div><div class="ride-stat"><div class="ride-stat-val">All</div><div class="ride-stat-key">Ages</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Wild River added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+
+  <div class="ride-full-card reveal" data-zone="water">
+    <div class="ride-img"><div class="ride-img-bg bg-4"></div><span class="ride-img-badge t-water">Water</span><span class="ride-height-badge">All Ages</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><span class="thrill-label">Easy</span></div>
+      <div class="ride-name-full">TIDAL WAVE</div>
+      <div class="ride-tagline">Asia's largest wave pool with 3-meter artificial swells. Surf, swim or just float under the sky.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">3m</div><div class="ride-stat-key">Wave Height</div></div><div class="ride-stat"><div class="ride-stat-val">500</div><div class="ride-stat-key">Capacity</div></div><div class="ride-stat"><div class="ride-stat-val">All</div><div class="ride-stat-key">Ages</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Tidal Wave added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+
+  <div class="ride-full-card reveal" data-zone="family">
+    <div class="ride-img"><div class="ride-img-bg bg-8"></div><span class="ride-img-badge t-family">Family</span><span class="ride-height-badge">All Ages</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><span class="thrill-label">Mild</span></div>
+      <div class="ride-name-full">GOLDEN SAFARI</div>
+      <div class="ride-tagline">Scenic rail journey through a simulated wildlife reserve with animatronic animals. Kids' absolute favourite.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">1.2km</div><div class="ride-stat-key">Track</div></div><div class="ride-stat"><div class="ride-stat-val">18</div><div class="ride-stat-key">Animals</div></div><div class="ride-stat"><div class="ride-stat-val">All</div><div class="ride-stat-key">Ages</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Golden Safari added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- VR ZONE -->
+<div class="zone-header" id="vr"><div class="zone-line"></div><div class="zone-label">🥽 VR UNIVERSE</div><div class="zone-line"></div></div>
+<div class="rides-grid">
+  <div class="ride-full-card reveal" data-zone="vr">
+    <div class="ride-img"><div class="ride-img-bg bg-3"></div><span class="ride-img-badge t-vr">VR</span><span class="ride-height-badge">Min 120cm</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar"></div><span class="thrill-label">High</span></div>
+      <div class="ride-name-full">VORTEX VR</div>
+      <div class="ride-tagline">360° virtual reality coaster with haptic seat feedback. Reality will genuinely never feel the same after.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">360°</div><div class="ride-stat-key">View</div></div><div class="ride-stat"><div class="ride-stat-val">8K</div><div class="ride-stat-key">Resolution</div></div><div class="ride-stat"><div class="ride-stat-val">6min</div><div class="ride-stat-key">Duration</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Vortex VR added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+
+  <div class="ride-full-card reveal" data-zone="vr">
+    <div class="ride-img"><div class="ride-img-bg bg-9"></div><span class="ride-img-badge t-vr">VR</span><span class="ride-height-badge">Min 110cm</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><span class="thrill-label">Moderate</span></div>
+      <div class="ride-name-full">DEEP SPACE</div>
+      <div class="ride-tagline">Immersive space exploration simulator. Pilot a spacecraft through asteroid fields and nebulae.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">4K</div><div class="ride-stat-key">Resolution</div></div><div class="ride-stat"><div class="ride-stat-val">12min</div><div class="ride-stat-key">Duration</div></div><div class="ride-stat"><div class="ride-stat-val">4D</div><div class="ride-stat-key">Effects</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Deep Space added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+
+  <div class="ride-full-card reveal" data-zone="water">
+    <div class="ride-img"><div class="ride-img-bg bg-7"></div><span class="ride-img-badge t-water">Water</span><span class="ride-height-badge">Min 120cm</span></div>
+    <div class="ride-body">
+      <div class="thrill-meter"><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar filled"></div><div class="thrill-bar"></div><div class="thrill-bar"></div><span class="thrill-label">Moderate</span></div>
+      <div class="ride-name-full">TSUNAMI TWIST</div>
+      <div class="ride-tagline">High-speed waterslide with three full 360° barrel rolls and a 30m splash landing pool.</div>
+      <div class="ride-stats"><div class="ride-stat"><div class="ride-stat-val">300m</div><div class="ride-stat-key">Length</div></div><div class="ride-stat"><div class="ride-stat-val">3</div><div class="ride-stat-key">Barrel Rolls</div></div><div class="ride-stat"><div class="ride-stat-val">60</div><div class="ride-stat-key">km/h</div></div></div>
+      <div class="ride-actions"><a href="tickets.html" class="btn btn-primary" style="flex:1;justify-content:center">Book Now</a><button class="btn btn-outline" onclick="showToast('Tsunami Twist added to wishlist!')">+ Wishlist</button></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div><div class="footer-logo">AP<span>EX</span></div><p class="footer-tagline">India's most thrilling adventure park. 32 rides, 4 zones, 365 days of adrenaline in Hyderabad.</p></div>
+    <div><div class="footer-col-title">Explore</div><ul class="footer-links"><li><a href="rides.html">All Rides</a></li><li><a href="tickets.html">Tickets</a></li><li><a href="events.html">Events</a></li></ul></div>
+    <div><div class="footer-col-title">Visit</div><ul class="footer-links"><li><a href="contact.html">Getting Here</a></li><li><a href="contact.html">Opening Hours</a></li></ul></div>
+    <div><div class="footer-col-title">Company</div><ul class="footer-links"><li><a href="contact.html">About Apex</a></li><li><a href="contact.html">Group Bookings</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><div class="footer-copy">© 2025 Apex Adventure Park. All rights reserved.</div><div class="footer-socials"><a href="#" class="social-btn">IG</a><a href="#" class="social-btn">FB</a><a href="#" class="social-btn">YT</a><a href="#" class="social-btn">TW</a></div></div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+function filterRides(zone, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.ride-full-card').forEach(card => {
+    if (zone === 'all' || card.dataset.zone === zone) {
+      card.style.display = '';
+      card.style.opacity = '1';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  document.querySelectorAll('.zone-header').forEach(h => h.style.display = zone === 'all' ? '' : 'none');
+}
+</script>
+</body>
+</html>
